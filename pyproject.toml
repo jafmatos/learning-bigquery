@@ -1,0 +1,23 @@
+[project]
+name = "reading-sql"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "José Anselmo", email = "anselmojose297@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "db-dtypes>=1.7.1",
+    "google-cloud-bigquery>=3.45.1",
+    "google-cloud-bigquery-storage>=2.41.0",
+    "pandas>=3.0.5",
+    "pyarrow>=25.0.1",
+]
+
+[project.scripts]
+reading-sql = "reading_sql:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
