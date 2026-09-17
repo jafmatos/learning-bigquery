@@ -1,9 +1,11 @@
 # 🎯 Guia Prático de BigQuery para Estágio em Ciência de Dados
+
 > **Foco:** O essencial que você realmente precisa saber no dia a dia para conectar, puxar dados para o Pandas com segurança de custo e salvar resultados de modelos.
 
 ---
 
 ## 📑 O que você realmente vai usar:
+
 1. [Como Conectar no Python](#1-como-conectar-no-python)
 2. [Como Rodar Queries sem Estourar a Cota (Regras de Ouro)](#2-como-rodar-queries-sem-estourar-a-cota-regras-de-ouro)
 3. [Como Puxar os Dados para o Pandas](#3-como-puxar-os-dados-para-o-pandas)
@@ -36,7 +38,9 @@ client = bigquery.Client(project=PROJECT_ID)
 No BigQuery você paga pelo **volume lido do disco**, e não pelas linhas na tela. Para nunca passar vergonha com custo:
 
 ### Regra 1: Para testar no Pandas, use `TABLESAMPLE` (não use `LIMIT`)
+
 O `LIMIT 10` lê a tabela inteira e só corta no final. O `TABLESAMPLE` lê apenas uma fatia física do disco e cobra só por ela:
+
 ```sql
 -- Lê e cobra apenas 1% dos dados para você testar seu código:
 SELECT id, age, gender, country
@@ -45,10 +49,13 @@ TABLESAMPLE SYSTEM (1 PERCENT);
 ```
 
 ### Regra 2: Nunca faça `SELECT *`
+
 Em banco colunar, cada coluna é um arquivo no disco. Se você só precisa de 4 colunas, chame apenas as 4 colunas. Isso corta 80% a 90% da cobrança.
 
 ### Regra 3: Veja quanto vai gastar ANTES de rodar (`Dry Run`)
+
 O BigQuery permite calcular o consumo em Megabytes sem rodar a query e sem gastar 1 centavo:
+
 ```python
 def checar_tamanho_query(client: bigquery.Client, query: str):
     job_config = bigquery.QueryJobConfig(dry_run=True)
@@ -120,7 +127,7 @@ def salvar_no_bigquery(client: bigquery.Client, df: pd.DataFrame, tabela_destino
     """
     Exemplo de tabela_destino: "sandbox-508815.meu_dataset.predicoes_churn"
     """
-    job_config = bigquery.LoadTableJobConfig(
+    job_config = bigquery.LoadJobConfig(
         write_disposition="WRITE_TRUNCATE", # Sobrescreve se a tabela já existir
         autodetect=True                     # Detecta os tipos das colunas sozinho
     )
@@ -157,7 +164,7 @@ def extrair_dados(pais: str = "Brasil") -> pd.DataFrame:
         FROM `bigquery-public-data.thelook_ecommerce.users`
         WHERE country = @pais
     """
-    
+  
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
             bigquery.ScalarQueryParameter("pais", "STRING", pais)

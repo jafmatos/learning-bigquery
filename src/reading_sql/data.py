@@ -8,19 +8,20 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(GOOGLE_APPLICATION_CREDENTIAL
 bigquery_client = bigquery.Client(project=PROJECT_ID)
 
 query = """
-    SELECT 
-        id AS user_id,
-        age,
-        gender,
-        country,
-        traffic_source,
-        created_at
-    FROM `bigquery-public-data.thelook_ecommerce.users`
-    WHERE country = 'Brasil'
-    LIMIT 500
-;
+SELECT 
+    id as user_id
+FROM `bigquery-public-data.thelook_ecommerce.users`
+TABLESAMPLE SYSTEM (0.00001 PERCENT);
 """
 
-df_sales = bigquery_client.query(query).to_dataframe()
 
-print(df_sales.head())
+dataframe = bigquery_client.query(query).to_dataframe()
+
+load_job_config = bigquery.LoadJobConfig(
+    write_disposition="WRITE_TRUNCATE",
+    autodetect=True
+)
+
+load_job = bigquery_client.load_table_from_dataframe(dataframe, f"{PROJECT_ID}.meu_dataset.nova_tabela3", job_config=load_job_config)
+
+print("Acabou")

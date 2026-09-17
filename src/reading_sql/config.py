@@ -1,5 +1,9 @@
+import os
 from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parents[2]
+from dotenv import load_dotenv
 
-PROJECT_ID = "sandbox-508815"
-GOOGLE_APPLICATION_CREDENTIALS_PATH = ROOT_DIR / "key" / "sandbox-508815-5323cef31685.json"
+load_dotenv()
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
+GOOGLE_APPLICATION_CREDENTIALS_PATH = ROOT_DIR / os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH")
