@@ -272,6 +272,7 @@ O BigQuery cobra pelo **volume de dados lido do disco**, e não pelas linhas env
 Para **realmente baratear** a consulta e cortar o volume de bytes escaneados, use estas ferramentas:
 
 ### 10.1. `TABLESAMPLE SYSTEM (X PERCENT)` — O verdadeiro substituto do LIMIT para testes
+
 O BigQuery possui uma funcionalidade nativa de **amostragem pseudoaleatória**. Diferente do `LIMIT`, o `TABLESAMPLE` lê fisicamente apenas uma porcentagem dos blocos de dados do disco e **COBRA APENAS POR ESSA PORCENTAGEM**:
 
 ```sql
@@ -281,9 +282,11 @@ SELECT
 FROM `bigquery-public-data.thelook_ecommerce.users` 
 TABLESAMPLE SYSTEM (1 PERCENT);
 ```
+
 > 💡 **Dica de ouro:** Se uma tabela corporativa tem 100 GB, usar `TABLESAMPLE SYSTEM (1 PERCENT)` fará você processar e pagar apenas por **1 GB**, obtendo uma amostra estatisticamente representativa para fazer sua Análise Exploratória (EDA) no Pandas sem estourar o orçamento!
 
 ### 10.2. Filtrar pela Coluna de Partição (`WHERE data >= ...`)
+
 Em ambientes corporativos, tabelas com milhões ou bilhões de linhas são **particionadas por data** (cada dia de dados fica guardado em uma pasta/bloco separado).
 
 Quando você filtra pela coluna particionada, o BigQuery **ignora fisicamente** todo o restante da tabela:
@@ -297,7 +300,8 @@ WHERE created_at >= '2023-12-01';
 ```
 
 ### 10.3. Filtrar por Colunas de Clusterização (`CLUSTER BY`)
-Tabelas clusterizadas organizam os dados internamente ordenados por colunas frequentemente consultadas (ex: `country` ou `status`). 
+
+Tabelas clusterizadas organizam os dados internamente ordenados por colunas frequentemente consultadas (ex: `country` ou `status`).
 
 ```sql
 -- Se a tabela estiver clusterizada por country, o BigQuery pula blocos que não batem:
@@ -308,13 +312,13 @@ WHERE country = 'Brasil';
 
 ### 10.4. Tabela Resumo: O que realmente reduz custos no BigQuery?
 
-| Recurso | Reduz linhas exibidas? | **Reduz o custo / bytes faturados?** | Quando usar? |
-| :--- | :---: | :---: | :--- |
-| `LIMIT 10` |  Sim | ❌ **NÃO** | Apenas para inspecionar o formato visual final. |
-| `SELECT col1, col2` (Column Pruning) | ➖ Não |  **SIM (Muito)** | **Sempre!** Nunca use `SELECT *`. |
-| `TABLESAMPLE SYSTEM (1 PERCENT)` |  Sim |  **SIM (Proporcional)** | Para EDA, testes locais e protótipos de pipeline. |
-| `WHERE data >= '2024-01-01'` (Partição) |  Sim |  **SIM (Dramático)** | Filtros temporais em tabelas históricas. |
-| `WHERE status = 'Complete'` (Cluster) |  Sim |  **SIM** | Filtros de categorias e status em tabelas clusterizadas. |
+| Recurso                                     | Reduz linhas exibidas? | **Reduz o custo / bytes faturados?** | Quando usar?                                             |
+| :------------------------------------------ | :--------------------: | :----------------------------------------: | :------------------------------------------------------- |
+| `LIMIT 10`                                |          Sim          |              ❌**NÃO**              | Apenas para inspecionar o formato visual final.          |
+| `SELECT col1, col2` (Column Pruning)      |        ➖ Não        |           **SIM (Muito)**           | **Sempre!** Nunca use `SELECT *`.                |
+| `TABLESAMPLE SYSTEM (1 PERCENT)`          |          Sim          |        **SIM (Proporcional)**        | Para EDA, testes locais e protótipos de pipeline.       |
+| `WHERE data >= '2024-01-01'` (Partição) |          Sim          |         **SIM (Dramático)**         | Filtros temporais em tabelas históricas.                |
+| `WHERE status = 'Complete'` (Cluster)     |          Sim          |               **SIM**               | Filtros de categorias e status em tabelas clusterizadas. |
 
 ---
 
